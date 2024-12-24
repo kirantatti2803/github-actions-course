@@ -15,7 +15,7 @@ jobs:
       - name: pass job
         run: |
           echo "my success job"
-          exit 0
+          exit 1
       - name: success job
         run: echo "good bye"
 
@@ -24,3 +24,11 @@ jobs:
     steps:
       - name: Say buddy 
         run: echo "hello  buddy"
+
+  my-fourth-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: fail 
+        run: |
+          echo "failed"
+          exit 1
