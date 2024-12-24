@@ -1,0 +1,26 @@
+name: 01 - Building blocks
+
+on: push
+
+jobs:
+  my-first-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say Hello 
+        run: echo "hello world"
+
+  my-second-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: pass job
+        run: |
+          echo "my success job"
+          exit 0
+      - name: success job
+        run: echo "good bye"
+
+  my-third-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say buddy 
+        run: echo "hello  buddy"
