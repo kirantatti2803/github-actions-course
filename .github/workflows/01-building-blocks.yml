@@ -15,7 +15,7 @@ jobs:
       - name: pass job
         run: |
           echo "my success job"
-          exit 1
+          exit 0
       - name: success job
         run: echo "good bye"
 
