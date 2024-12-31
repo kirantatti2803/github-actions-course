@@ -1,6 +1,6 @@
 name: 01 - Building blocks
 
-on: push
+on: workflow_dispatch
 
 jobs:
   my-first-job:

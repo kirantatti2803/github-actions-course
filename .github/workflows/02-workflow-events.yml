@@ -1,8 +1,8 @@
 name: 02 - Workflow Events
 
 on: 
-  push:
-  pull_request:
+# push:
+# pull_request:ssss
 # schedule:
 #   - cron: '*/5 * * * *'
   workflow_dispatch:
