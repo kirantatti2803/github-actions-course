@@ -1,0 +1,14 @@
+name: 05 - 2- Event and Activity types
+
+on:
+    pull_request:
+        types:
+            - closed
+        branches:
+            - main
+
+jobs:
+    echo:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo "Running when PR is open or synchronize and base branch is main"
