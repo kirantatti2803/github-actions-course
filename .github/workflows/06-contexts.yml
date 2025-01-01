@@ -20,4 +20,4 @@ jobs:
                 echo "Repo URL: ${{github.repositoryUrl}}"
             - name: Display Variables
               run: |
-                echo "My Variable name: ${{My_Var}}"
+                echo "My Variable name: ${{vars.My_Var}}"s
