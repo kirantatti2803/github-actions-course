@@ -36,16 +36,16 @@ jobs:
               env:
                 MY_OVERWRITTEN_VAR: "step"
               run: |
-                echo "worflow var: ${{ env.MY_WORKFLOW_VAR}}"
+                echo "workflow var: ${{ env.MY_WORKFLOW_VAR}}"
                 echo "overwritten var ${{ env.MY_OVERWRITTEN_VAR}}"
             - name: Display Env Variables
               run: |
-                echo "worflow var: ${{ env.MY_WORKFLOW_VAR}}"
+                echo "workflow var: ${{ env.MY_WORKFLOW_VAR}}"
                 echo "overwritten var ${{ env.MY_OVERWRITTEN_VAR}}"
     contexts2:
         runs-on: ubuntu-latest
         steps:
-            - name: Display Env Variables
+            - name: Display Context 2 Variables
               run: |
-                echo "worflow var: $MY_WORKFLOW_VAR"
+                echo "workflow var: $MY_WORKFLOW_VAR"
                 echo "overwritten var $MY_OVERWRITTEN_VAR"
