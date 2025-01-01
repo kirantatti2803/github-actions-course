@@ -1,8 +1,8 @@
 name: 06 - Contexts
 
 on:
-    push
-    workflow_dispatch
+  push:
+  workflow_dispatch:
 
 jobs:
     contexts:
@@ -20,4 +20,4 @@ jobs:
                 echo "Repo URL: ${{github.repositoryUrl}}"
             - name: Display Variables
               run: |
-                echo "My Variable name: ${{My_Var}}"s
+                echo "My Variable name: ${{My_Var}}"
