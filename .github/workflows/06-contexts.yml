@@ -8,10 +8,16 @@ on:
         debug:
             type: boolean
             default: false
+env:
+  MY_WORKFLOW_VAR: "workflow"
+  MY_OVERWRITTEN_VAR: "workflow"
 
 jobs:
     contexts:
         runs-on: ubuntu-latest
+        env:
+          MY_JOB_VAR: "job"
+          MY_OVERWRITTEN_VAR: "job"
         steps:
             - name: Display Information
               run: |
@@ -25,4 +31,14 @@ jobs:
                 echo "Repo URL: ${{github.repositoryUrl}}"
             - name: Display Variables
               run: |
-                echo "My Variable name: ${{vars.My_Var}}"
+                echo "My Variable name: ${{ vars.MY_VAR }}"
+            - name: Display Env Variables
+              env:
+                MY_OVERWRITTEN_VAR: "step"
+              run: |
+                echo "worflow var: ${{ env.MY_WORKFLOW_VAR}}"
+                echo "overwritten var ${{ env.MY_OVERWRITTEN_VAR}}"
+            - name: Display Env Variables
+              run: |
+                echo "worflow var: ${{ env.MY_WORKFLOW_VAR}}"
+                echo "overwritten var ${{ env.MY_OVERWRITTEN_VAR}}"
