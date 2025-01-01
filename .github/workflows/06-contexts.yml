@@ -1,0 +1,24 @@
+name: 06 - Contexts
+
+on:
+    push
+    workflow_dispatch
+
+jobs:
+    contexts:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Display Information
+              run: |
+                echo "Event name: ${{github.event_name}}"
+                echo "Event Ref: ${{github.ref}}"
+                echo "SHA: ${{github.sha}}"
+                echo "Actor: ${{github.actor}}"
+                echo "Workflow: ${{github.workflow}}"
+                echo "Run Name: ${{github.run_id}}"
+                echo "Run Number: ${{github.run_number}}"
+                echo "Repo URL: ${{github.repositoryUrl}}"
+            - name: Display Variables
+              run: |
+                echo "My Variable name: ${{My_Var}}"
+ss
