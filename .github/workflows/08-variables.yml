@@ -1,0 +1,28 @@
+name: 08 - variables
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+    WF_VAR1: " I am WF var 1"
+    WF_VAR2: " I am WF var 2"
+
+jobs:
+    echo-variables:
+        runs-on: ubuntu-latest
+        env:
+            JOB_VAR1: " I am JOB var 1"
+            JOB_VAR2: " I am JOB var 2"
+        steps:
+            - name: Print env variables
+              env:
+                STEP_VAR1: "I am step var 1"
+                STEP_VAR2: "I am step var 2"
+              run: |
+               echo "print step env var: ${{ env.STEP_VAR1 }}"
+               echo "print step env var: ${{ env.STEP_VAR2 }}"
+               echo "print step env var: ${{ env.JOB_VAR1 }}"
+               echo "print step env var: ${{ env.JOB_VAR2}}"
+               echo "print step env var: ${{ env.WF_VAR1 }}"
+               echo "print step env var: ${{ env.WF_VAR2 }}"
