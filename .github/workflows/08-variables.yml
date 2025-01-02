@@ -22,7 +22,23 @@ jobs:
               run: |
                echo "print step env var: ${{ env.STEP_VAR1 }}"
                echo "print step env var: ${{ env.STEP_VAR2 }}"
-               echo "print step env var: ${{ env.JOB_VAR1 }}"
-               echo "print step env var: ${{ env.JOB_VAR2}}"
-               echo "print step env var: ${{ env.WF_VAR1 }}"
-               echo "print step env var: ${{ env.WF_VAR2 }}"
+               echo "print job env var: ${{ env.JOB_VAR1 }}"
+               echo "print job env var: ${{ env.JOB_VAR2}}"
+               echo "print wf env var: ${{ env.WF_VAR1 }}"
+               echo "print wf env var: ${{ env.WF_VAR2 }}"
+    echo-prod:
+        runs-on: ubuntu-latest
+        environment: PROD
+        steps:
+            - name: Print Prod variables
+              run: |
+                echo "prints the : ${{ vars.PROD_VAR1 }}"
+                echo "prints the : ${{ vars.KEY_VAR1 }}"
+    echo-stage:
+        runs-on: ubuntu-latest
+        environment: STAGE
+        steps:
+            - name: Print Stage variables
+              run: |
+                echo "prints the : ${{ vars.STAGE_VAR1 }}"
+                echo "prints the : ${{ vars.KEY_VAR1 }}"
