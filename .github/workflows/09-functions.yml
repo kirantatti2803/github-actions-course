@@ -8,6 +8,8 @@ jobs:
     echo-functions:
         runs-on: ubuntu-latest
         steps:
+            - name: Sleep for 20sec
+              run: sleep 20
             - name: Failing Step
               run: exit 1
             - name: I will be skipped
