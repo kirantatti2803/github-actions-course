@@ -8,6 +8,13 @@ jobs:
     echo-functions:
         runs-on: ubuntu-latest
         steps:
+            - name: Print the PR title
+              run: echo "${{ github.event_name.title  }}"
+            - name: Print the PR lables
+              run: echo "${{ toJson(github.event_name.lables)}}"
+            - name: Bug step
+              if: ${{!cancelled()}} && ${{contains(github.event_name.title, 'fix')}}
+              run: echo "i am a bug fix"
             - name: Sleep for 20sec
               run: sleep 20
             - name: Failing Step
