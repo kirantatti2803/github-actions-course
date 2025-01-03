@@ -11,7 +11,7 @@ jobs:
             - name: Print the PR title
               run: echo "${{ github.event.pull_request.title}}"
             - name: Print the PR lables
-              run: echo "${{ toJson(github.event.pull_request.labels)}}"                       
+              run: echo "${{ toJSON(github.event.pull_request.labels)}}"                       
             - name: Bug step
               if: ${{!cancelled()}} && ${{contains(github.event.pull_request.title, 'fix')}}
               run: echo "i am a bug fix"
