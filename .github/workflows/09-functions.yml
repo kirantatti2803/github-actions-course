@@ -1,7 +1,7 @@
 name: 09 - Function
 
 on:
-    push:
+    pull_request:
     workflow_dispatch:
 
 jobs:
@@ -9,11 +9,11 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Print the PR title
-              run: echo "${{ github.event_name.title  }}"
+              run: echo "${{ github.event.pull_request.title}}"
             - name: Print the PR lables
-              run: echo "${{ toJson(github.event_name.lables)}}"
+              run: echo "${{ toJson(github.event.pull_request.labels)}}"                       
             - name: Bug step
-              if: ${{!cancelled()}} && ${{contains(github.event_name.title, 'fix')}}
+              if: ${{!cancelled()}} && ${{contains(github.event.pull_request.title, 'fix')}}
               run: echo "i am a bug fix"
             - name: Sleep for 20sec
               run: sleep 20
