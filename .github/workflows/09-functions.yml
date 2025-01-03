@@ -16,7 +16,7 @@ jobs:
             - name: Bug step
               if: ${{!cancelled() && contains(github.event.pull_request.title, 'fix')}}
               run: echo "i am a bug fix"
-            - name: Sleep for 20sec
+            - name: Sleep for 20
               run: sleep 20
             - name: Failing Step
               run: exit 1
