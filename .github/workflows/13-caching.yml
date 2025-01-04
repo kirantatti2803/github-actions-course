@@ -22,9 +22,7 @@ jobs:
                 pip install pytest
             - name: Install Flask Dependencies
               run: |
-                pip install -r requirements.txt
-                pip install flask
-                flask --version
+                pip install -r python/requirements.txt
             - name: Build Flask app
               run: |
                 python app.py
