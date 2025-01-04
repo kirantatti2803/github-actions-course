@@ -1,0 +1,37 @@
+name: 11 - Inputs
+
+on:
+    workflow_dispatch:
+        inputs:
+            dry-run:   
+              type: boolean
+              description: Skip the deployment and run only run the build
+              default: true
+            target:
+              type: environment
+              required: true
+              description: select the envt where the pipline need to run
+            tag:
+              type: choice
+              description: select the version of the choice
+              options:
+                - v1
+                - v2
+                - v3
+              default: v3
+
+jobs:
+    Build:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Building the code
+            run: |
+              echo "Build from the code version ${{inputs.tag}}"
+    Deploy:
+        runs-on: ubuntu-latest
+        if: ${{!inputs.dry-run}}
+        environment: ${{inputs.target}}
+        steps:
+            - name: Deployment in-progress
+              run: |
+                echo "Deploymnet done on ${{inputs.target}}

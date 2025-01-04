@@ -1,0 +1,38 @@
+name: 10 - Python - CI - D1 file
+
+on:
+    workflow_dispatch:
+
+jobs:
+    Step1-Checkout:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v3
+    Step2-Setup-Python:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Setup the Python env
+              uses: actions/setup-python@v2         
+    Step3-Dependencies:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Install Dependencies
+              run: |
+                cd python/
+                python -m pip install --upgrade pip
+                pip install pytest
+                pip install -r requirements.txt
+    Step4-Unit-Test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Install Dependencies
+              run: |
+                cd python/
+                python -m pytest addition.py
+    Step5-Deploy-Non-Prod:
+        runs-on: ubuntu-latest
+    Step6-E2E-Test:
+        runs-on: ubuntu-latest
+    Step7-Deploy-Prod:
+        runs-on: ubuntu-latest
