@@ -31,7 +31,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout the code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
             - name: Setup the Python env
               uses: actions/setup-python@v3
               with:
@@ -41,6 +41,11 @@ jobs:
                 python -m pip install --upgrade pip
                 pip install flake8 pytest
                 if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+            - name: Install dependencies if requirements.txt exists
+              run: |
+                if [ -f requirements.txt ]; then
+                  pip install -r requirements.txt
+                fisssssssss
             - name: Lint with flake8
               run: |
                 # stop the build if there are Python syntax errors or undefined names
