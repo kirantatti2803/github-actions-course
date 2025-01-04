@@ -44,7 +44,6 @@ jobs:
               run: tree
             - name: Install Flask Dependencies
               run: |
-                cd python
                 python -m pip install -r requirements.txt
             - name: Build Flask app
               run: |
