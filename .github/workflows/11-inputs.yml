@@ -34,4 +34,4 @@ jobs:
         steps:
             - name: Deployment in-progress
               run: |
-                echo "Deploymnet done on ${{inputs.target}}
+                echo "Deploymnet done on ${{inputs.target}}"
