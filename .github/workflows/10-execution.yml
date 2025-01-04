@@ -5,7 +5,7 @@ on:
       inputs:
         pass-unit-tests:
           type: boolean
-          description: Unit tets passsed or not
+          description: Unit tests passed or not
           default: true
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu latest
         steps:
             - name: lint and build
-              run: echo "Lint andd Buildd success"
+              run: echo "Lint and Build success"
     unit-tests:
         runs-on: ubuntu latest
         steps:
@@ -29,7 +29,7 @@ jobs:
             - unit-tests
         steps:
             - name: Deploy Non Prod
-              run: echo "Deploy to non prob success"
+              run: echo "Deploy to non prod success"
     e2e-test:
         runs-on: ubuntu latest
         needs:
@@ -51,5 +51,5 @@ jobs:
             - load-test
         steps:
             - name: Deploy to Prod
-              run: echo "Deploy to prob success"
+              run: echo "Deploy to prod success"
     
