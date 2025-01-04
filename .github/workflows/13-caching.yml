@@ -4,11 +4,31 @@ on:
     workflow_dispatch:
 
 jobs:
-    build:
+    build-addition:
         runs-on: ubuntu-latest
         defaults:
             run:
                 working-directory: ./python
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v3
+            - name: Setup the Python env
+              uses: actions/setup-python@v3
+              with:
+                python-version: '3.9'
+            - name: Install Dependencies
+              run: |
+                python -m pip install --upgrade pip
+                pip install pytest
+            - name: List files in python directory
+              run: tree
+            - name: Run Unit test
+              run: |
+                python -m pytest addition.py
+            - name: Deploy to Non prod
+              run: echo "Deploy to Non prod success"
+    build-flask:
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout the code
               uses: actions/checkout@v3
@@ -28,8 +48,5 @@ jobs:
             - name: Build Flask app
               run: |
                 python app.py
-            - name: Run Unit test
-              run: |
-                python -m pytest addition.py
             - name: Deploy to Non prod
               run: echo "Deploy to Non prod success"
