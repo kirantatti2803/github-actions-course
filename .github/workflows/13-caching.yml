@@ -23,6 +23,7 @@ jobs:
             - name: Install Flask Dependencies
               run: |
                 pip install -r requirements.txt
+                echo "flask --version"
             - name: Build Flask app
               run: |
                 python app.py
