@@ -8,7 +8,7 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
             run:
-                working-directory: ./src
+                working-directory: ./pyproject
         steps:
             - name: Checkout the code
               uses: actions/checkout@v3
@@ -29,6 +29,9 @@ jobs:
               run: echo "Deploy to Non prod success"
     build-flask:
         runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ./pyproject
         steps:
             - name: Checkout the code
               uses: actions/checkout@v4
