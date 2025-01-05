@@ -1,0 +1,12 @@
+{
+    "name": "simple-nodejs-app",
+    "version": "1.0.0",
+    "description": "A very simple Node.js app for GitHub Actions",
+    "license": "ISC",
+    "author": "",
+    "type": "commonjs",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    }
+}
