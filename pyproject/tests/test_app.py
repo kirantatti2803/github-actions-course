@@ -2,7 +2,7 @@ import pytest
 from app import index  # Assuming your Flask app is in a file called `app.py`
 
 def test_index():
-    assert index() == "Hello, world!"
+    assert index() == "Hello, World!"
 
 
 '''
