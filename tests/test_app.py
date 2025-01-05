@@ -1,5 +1,5 @@
 import pytest
-from app import app  # Assuming your Flask app is in a file called `app.py`
+from app import hello_world  # Assuming your Flask app is in a file called `app.py`
 
 @pytest.fixture
 def client():
