@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu-latest
         env:
           APP_A_PATH: "./java-maven"
-          APP_B_PATH: "./python"
+          APP_B_PATH: "./python/src"
           APP_C_PATH: "./react-app"
 
         steps:
