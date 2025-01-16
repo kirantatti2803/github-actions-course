@@ -1,0 +1,56 @@
+name: 18 - CI-Reusable Workflows
+
+on:
+    workflow_call:
+        inputs:
+            app:
+                required: true
+                type: string
+                description: Choice of Application A, B or C
+
+jobs:
+    ci:
+        runs-on: ubunut-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v3
+        
+            - name: Setting up Enviroement for ${{ inputs.app }}
+              run: |
+                echo " Setting up Enviroement for ${{ inputs.app }}"
+                if [[ "${{ inputs.app }} == "A" ]]; then
+                 echo "Installing Ddependecies for App A"
+                 npm install
+                elif [[ "${{ inputs.app }} == "B" ]]; then
+                 echo "Installing Ddependecies for App B"
+                 pip install -r requirement.txt
+                elif [[ "${{ inputs.app }} == "C" ]]; then
+                 echo "Installing Ddependecies for App C"
+                 ./gradlew dependencies
+                fi
+            - name: Test ${{ inputs.app }}
+              run: |
+                echo " Test ${{ inputs.app }}"
+                if [[ "${{ inputs.app }} == "A" ]]; then
+                 echo "Test App A"
+                 npm test
+                elif [[ "${{ inputs.app }} == "B" ]]; then
+                 echo "Test App B"
+                 pytest
+                elif [[ "${{ inputs.app }} == "C" ]]; then
+                 echo "Test App C"
+                 ./gradlew test
+                fi
+            - name: Lint for ${{ inputs.app }}
+              run: |
+                echo "Linting ${{ inputs.app }}"
+                if [[ "${{ inputs.app }} == "A" ]]; then
+                 echo "Lint App A"
+                 npm run lint
+                elif [[ "${{ inputs.app }} == "B" ]]; then
+                 echo "Lint App B"
+                 flack8 .
+                elif [[ "${{ inputs.app }} == "C" ]]; then
+                 echo "Lint App C"
+                 ./gradlew check
+                fi             
