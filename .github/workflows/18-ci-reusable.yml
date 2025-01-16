@@ -11,21 +11,51 @@ on:
 jobs:
     ci:
         runs-on: ubuntu-latest
+        env:
+          APP_A_PATH: "./java-maven"
+          APP_B_PATH: "./python"
+          APP_C_PATH: "./react-app"
+
         steps:
             - name: Checkout Code
               uses: actions/checkout@v3
-        
-            - name: Setting up Enviroement for ${{ inputs.app }}
+            
+            - name: Set up JDK 17
+              uses: actions/setup-java@v4
+              with:
+                java-version: '17'
+                distribution: 'temurin'
+                cache: maven
+              if: ${{ inputs.app == 'A' }}
+          
+            - name: Setup Python environment
+              uses: actions/setup-python@v3
+              with:
+                python-version: '3.10'
+              if: ${{ inputs.app == 'B' }}
+          
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v4
+              with:
+                node-version: '20.x'
+              if: ${{ inputs.app == 'C' }}
+
+            - name: Installing Dependencies for ${{ inputs.app }}
               run: |
-                echo " Setting up Enviroement for ${{ inputs.app }}"
+                echo " Installing Dependencies for ${{ inputs.app }}"
                 if [[ "${{ inputs.app }}" == "A" ]]; then
                  echo "Installing Dependencies for  App A"
+                 export APP_PATH=${{ env.APP_A_PATH }}
                  npm install
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Installing Dependencies for  App B"
-                 pip install -r requirement.txt
+                 export APP_PATH=${{ env.APP_B_PATH }}
+                 python -m pip install --upgrade pip
+                 pip install flake8 pytest
+                 if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Installing Dependencies for  App C"
+                 export APP_PATH=${{ env.APP_C_PATH }}
                  ./gradlew dependencies
                 fi
             - name: Test ${{ inputs.app }}
@@ -36,6 +66,7 @@ jobs:
                  npm test
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Test App B"
+                 export PYTHONPATH=src
                  pytest
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Test App C"
@@ -49,7 +80,10 @@ jobs:
                  npm run lint
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Lint App B"
-                 flack8 .
+                 # stop the build if there are Python syntax errors or undefined names
+                 flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+                 # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+                 flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Lint App C"
                  ./gradlew check
