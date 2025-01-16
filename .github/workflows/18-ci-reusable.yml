@@ -67,7 +67,7 @@ jobs:
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Test App B"
                  export PYTHONPATH=src
-                 pytest
+                 pytest python/tests/test_app.py
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Test App C"
                  ./gradlew test
