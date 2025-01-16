@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu-latest
         env:
           APP_A_PATH: "./java-maven"
-          APP_B_PATH: "./pyproject"
+          APP_B_PATH: "./python"
           APP_C_PATH: "./react-app"
 
         steps:
@@ -66,6 +66,7 @@ jobs:
                  npm test
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Test App B"
+                 export PYTHONPATH=src
                  pytest
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Test App C"
