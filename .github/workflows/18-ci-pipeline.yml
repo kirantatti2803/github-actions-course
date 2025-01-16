@@ -1,13 +1,10 @@
 name: Main CI Pipeline
 
 on:
-    push:
-        branches:
-          - main
     workflow_dispatch:
         inputs:
             app:
-              description:  "The Application choice A, B or C"
+              description:  "The Application choices A, B or C"
               required: true
               default: "A"
               
