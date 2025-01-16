@@ -7,14 +7,14 @@ on:
     workflow_dispatch:
         inputs:
             app:
-              description:  "The Application to run for A, B or C"
+              description:  "The Application choice A, B or C"
               required: true
               default: "A"
-            
+              
 jobs:
-    trigger-reusable:
-        uses: ./.github/workflows/18-ci-reusable.yml
-        with:   
-            app: ${{ inputs.app  }}
+    trigger-reusable:     
+        uses: ./.github/workflow/18-ci-reusable.yml
+        with: 
+            app: ${{ inputs.app }}
 
 
