@@ -18,39 +18,39 @@ jobs:
             - name: Setting up Enviroement for ${{ inputs.app }}
               run: |
                 echo " Setting up Enviroement for ${{ inputs.app }}"
-                if [[ "${{ inputs.app }} == "A" ]]; then
-                 echo "Installing Ddependecies for App A"
+                if [[ "${{ inputs.app }}" == "A" ]]; then
+                 echo "Installing Dependencies for  App A"
                  npm install
-                elif [[ "${{ inputs.app }} == "B" ]]; then
-                 echo "Installing Ddependecies for App B"
+                elif [[ "${{ inputs.app }}" == "B" ]]; then
+                 echo "Installing Dependencies for  App B"
                  pip install -r requirement.txt
-                elif [[ "${{ inputs.app }} == "C" ]]; then
-                 echo "Installing Ddependecies for App C"
+                elif [[ "${{ inputs.app }}" == "C" ]]; then
+                 echo "Installing Dependencies for  App C"
                  ./gradlew dependencies
                 fi
             - name: Test ${{ inputs.app }}
               run: |
                 echo " Test ${{ inputs.app }}"
-                if [[ "${{ inputs.app }} == "A" ]]; then
+                if [[ "${{ inputs.app }}" == "A" ]]; then
                  echo "Test App A"
                  npm test
-                elif [[ "${{ inputs.app }} == "B" ]]; then
+                elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Test App B"
                  pytest
-                elif [[ "${{ inputs.app }} == "C" ]]; then
+                elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Test App C"
                  ./gradlew test
                 fi
             - name: Lint for ${{ inputs.app }}
               run: |
                 echo "Linting ${{ inputs.app }}"
-                if [[ "${{ inputs.app }} == "A" ]]; then
+                if [[ "${{ inputs.app }}" == "A" ]]; then
                  echo "Lint App A"
                  npm run lint
-                elif [[ "${{ inputs.app }} == "B" ]]; then
+                elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Lint App B"
                  flack8 .
-                elif [[ "${{ inputs.app }} == "C" ]]; then
+                elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Lint App C"
                  ./gradlew check
                 fi             
