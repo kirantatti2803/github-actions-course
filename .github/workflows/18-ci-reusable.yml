@@ -66,7 +66,6 @@ jobs:
                  npm test
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Test App B"
-                 export PYTHONPATH=src
                  pytest
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Test App C"
