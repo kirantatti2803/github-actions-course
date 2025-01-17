@@ -65,6 +65,7 @@ jobs:
                 echo " Test ${{ inputs.app }}"
                 if [[ "${{ inputs.app }}" == "A" ]]; then
                  echo "Test App A"
+                 cd ./react-app
                  npm test
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Test App B"
@@ -82,6 +83,7 @@ jobs:
                 echo "Linting ${{ inputs.app }}"
                 if [[ "${{ inputs.app }}" == "A" ]]; then
                  echo "Lint App A"
+                 cd ./react-app
                  npm run lint
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Lint App B"
