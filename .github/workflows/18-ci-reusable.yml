@@ -46,6 +46,7 @@ jobs:
                 if [[ "${{ inputs.app }}" == "A" ]]; then
                  echo "Installing Dependencies for  App A"
                  export APP_PATH=${{ env.APP_A_PATH }}
+                 cd ./react-app
                  npm ci
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Installing Dependencies for  App B"
