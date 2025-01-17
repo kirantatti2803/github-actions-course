@@ -68,9 +68,9 @@ jobs:
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Test App B"
                  pwd
-                 cd ./pyproject/src
+                 cd ./pyproject
                  pwd
-                 pytest
+                 pytest test/test_app.py
                  echo "Testing competed"
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  pwd
