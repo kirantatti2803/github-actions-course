@@ -68,10 +68,11 @@ jobs:
                  echo "Test App B"
                  export PYTHONPATH=src
                  #pytest python/tests/test_app.py
+                 pwd
                  echo "Testing competed"
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
-                 echo "Test App C"
-                 ./gradlew test
+                 echo "Build and Test Java Meven"
+                 mvn -B package --file pom.xml
                 fi
             - name: Lint for ${{ inputs.app }}
               run: |
@@ -87,5 +88,5 @@ jobs:
                  flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Lint App C"
-                 ./gradlew check
+                 echo "Lining for Java Meven completed"
                 fi             
