@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu-latest
         env:
           APP_A_PATH: "./node-project"
-          APP_B_PATH: "./python"
+          APP_B_PATH: "./pypython"
           APP_C_PATH: "./java-maven"
 
         steps:
@@ -68,7 +68,7 @@ jobs:
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Test App B"
                  pwd
-                 cd ./python/src
+                 cd ./pyproject/src
                  pwd
                  pytest
                  echo "Testing competed"
