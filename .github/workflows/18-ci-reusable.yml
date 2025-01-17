@@ -12,7 +12,7 @@ jobs:
     ci:
         runs-on: ubuntu-latest
         env:
-          APP_A_PATH: "./node-project"
+          APP_A_PATH: "./react-app"
           APP_B_PATH: "./pypython"
           APP_C_PATH: "./java-maven"
 
