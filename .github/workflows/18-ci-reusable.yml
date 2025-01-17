@@ -12,32 +12,32 @@ jobs:
     ci:
         runs-on: ubuntu-latest
         env:
-          APP_A_PATH: "./java-maven"
+          APP_A_PATH: "./node-project"
           APP_B_PATH: "./python"
-          APP_C_PATH: "./react-app"
+          APP_C_PATH: "./java-maven"
 
         steps:
             - name: Checkout Code
               uses: actions/checkout@v3
-            
+  
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v4
+              with:
+                node-version: '20.x'
+              if: ${{ inputs.app == 'A' }}
+
+            - name: Setup Python environment
+              uses: actions/setup-python@v3
+              with:
+                python-version: '3.10'
+              if: ${{ inputs.app == 'B' }}
+
             - name: Set up JDK 17
               uses: actions/setup-java@v4
               with:
                 java-version: '17'
                 distribution: 'temurin'
                 cache: maven
-              if: ${{ inputs.app == 'A' }}
-          
-            - name: Setup Python environment
-              uses: actions/setup-python@v3
-              with:
-                python-version: '3.10'
-              if: ${{ inputs.app == 'B' }}
-          
-            - name: Setup Node.js environment
-              uses: actions/setup-node@v4
-              with:
-                node-version: '20.x'
               if: ${{ inputs.app == 'C' }}
 
             - name: Installing Dependencies for ${{ inputs.app }}
@@ -54,9 +54,9 @@ jobs:
                  pip install flake8 pytest
                  if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
-                 echo "Installing Dependencies for  App C"
+                 echo "Install and Build for Java Meven for App C"
                  export APP_PATH=${{ env.APP_C_PATH }}
-                 ./gradlew dependencies
+                 mvn -B package --file pom.xml
                 fi
             - name: Test ${{ inputs.app }}
               run: |
@@ -71,8 +71,8 @@ jobs:
                  pwd
                  echo "Testing competed"
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
-                 echo "Build and Test Java Meven"
-                 mvn -B package --file pom.xml
+                 pwd
+                 echo "Testing completed"
                 fi
             - name: Lint for ${{ inputs.app }}
               run: |
@@ -87,6 +87,7 @@ jobs:
                  # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
                  flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
+                 pwd
                  echo "Lint App C"
                  echo "Lining for Java Meven completed"
                 fi             
