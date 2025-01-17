@@ -56,6 +56,7 @@ jobs:
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  echo "Install and Build for Java Meven for App C"
                  export APP_PATH=${{ env.APP_C_PATH }}
+                 cd ./java-maven
                  mvn -B package --file pom.xml
                 fi
             - name: Test ${{ inputs.app }}
