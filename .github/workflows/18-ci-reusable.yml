@@ -70,7 +70,7 @@ jobs:
                  pwd
                  cd ./pyproject
                  pwd
-                 pytest test/test_app.py
+                 pytest tests/test_app.py
                  echo "Testing competed"
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  pwd
