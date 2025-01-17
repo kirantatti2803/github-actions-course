@@ -67,9 +67,10 @@ jobs:
                  npm test
                 elif [[ "${{ inputs.app }}" == "B" ]]; then
                  echo "Test App B"
-                 export PYTHONPATH=src
-                 #pytest python/tests/test_app.py
                  pwd
+                 cd ./python
+                 pwd
+                 pytest
                  echo "Testing competed"
                 elif [[ "${{ inputs.app }}" == "C" ]]; then
                  pwd
