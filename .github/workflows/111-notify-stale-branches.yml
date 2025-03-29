@@ -19,7 +19,7 @@ jobs:
           sudo apt-get install -y jq mailutils
 
       - name: Find Stale Branches and Notify Owners
-        GITHUB_TOKEN: ${{ secrets.GITHUB_CLI_TOKEN }}
+        GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
         EMAIL_SENDER: "your-email@example.com"
         run: |
           REPO="${{ github.repository }}"
