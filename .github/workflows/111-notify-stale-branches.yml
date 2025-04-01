@@ -29,14 +29,14 @@ jobs:
           TODAY=$(date +%s)
 
           echo "Fetching branches from $REPO..."
-          BRANCHES=$(gh api repos/$REPO/branches --jq '.[] | {name: .name, date: .commit.commit.author.date, user: .commit.commit.author.email}')
+          BRANCHES=$(gh api repos/$REPO/branches --jq '.[] | {name: .name, date: .commit.commit.author.date, user: .commit.commit.author.name}')
 
           echo "$BRANCHES" | while IFS= read -r branch; do
               NAME=$(echo "$branch" | jq -r '.name')
               LAST_COMMIT_DATE=$(echo "$branch" | jq -r '.date')
-              EMAIL=$(echo "$branch" | jq -r '.user')
+              AUTHOR=$(echo "$branch" | jq -r '.user')
 
-              if [[ "$LAST_COMMIT_DATE" == "null" || "$EMAIL" == "null" ]]; then
+              if [[ "$LAST_COMMIT_DATE" == "null" || "$AUTHOR" == "null" ]]; then
                   echo "Skipping branch $NAME due to missing data."
                   continue
               fi
@@ -46,9 +46,19 @@ jobs:
               AGE=$(( (TODAY - COMMIT_TIMESTAMP) / 86400 ))
 
               if [[ $AGE -gt $DAYS_OLD ]]; then
-                  echo "Branch '$NAME' is $AGE days old. Sending notification to $EMAIL..."
+                  echo "Branch '$NAME' is $AGE days old. Looking up email for '$AUTHOR'..."
 
-                  # Send email notification using 'mail'
+                  # Fetch the GitHub user's email
+                  EMAIL=$(gh api users/$AUTHOR --jq '.email')
+
+                  if [[ "$EMAIL" == "null" || -z "$EMAIL" ]]; then
+                      echo "Could not retrieve email for $AUTHOR. Skipping email notification."
+                      continue
+                  fi
+
+                  echo "Sending notification to $EMAIL..."
+
+                  # Send email notification
                   SUBJECT="Stale branch '$NAME' in $REPO"
                   MESSAGE="Hi,\n\nThe branch '$NAME' in repository '$REPO' has been inactive for $AGE days.\nPlease review or delete it if no longer needed.\n\nThanks,\nGitHub Admin"
                   
