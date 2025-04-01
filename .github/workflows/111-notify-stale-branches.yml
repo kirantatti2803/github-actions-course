@@ -8,7 +8,7 @@ on:
 jobs:
   notify-stale-branches:
     runs-on: ubuntu-latest
-    
+    GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -19,8 +19,6 @@ jobs:
           sudo apt-get install -y jq mailutils
 
       - name: Find Stale Branches and Notify Owners
-        GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
-        EMAIL_SENDER: "your-email@example.com"
         run: |
           REPO="${{ github.repository }}"
           DAYS_OLD=60
