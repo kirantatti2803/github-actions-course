@@ -8,7 +8,7 @@ on:
 jobs:
   notify-branch-owners:
     runs-on: ubuntu-latest
-    GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
+#   GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,8 +19,9 @@ jobs:
           sudo apt-get install -y jq mailutils
 
       - name: Find Stale Branches and Notify Owners
-        GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
-        EMAIL_SENDER: "your-email@example.com"
+        env:
+          GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
+          EMAIL_SENDER: "your-email@example.com"
         run: |
           gh auth login --with-token <<< "$GH_TOKEN"
 
