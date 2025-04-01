@@ -2,52 +2,49 @@ name: Notify Stale Branches
 
 on:
   schedule:
-    - cron: '0 9 * * *' # Runs every day at 9 AM UTC
-  workflow_dispatch: # Allows manual triggering
+    - cron: '0 3 * * 1' # Runs every Monday at 3 AM UTC
+  workflow_dispatch: # Allows manual trigger
 
 jobs:
-  notify-stale-branches:
+  notify-branch-owners:
     runs-on: ubuntu-latest
-    GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
+      - name: Install GitHub CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jq mailutils
+          sudo apt update && sudo apt install -y gh
 
-      - name: Find Stale Branches and Notify Owners
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
         run: |
-          REPO="${{ github.repository }}"
-          DAYS_OLD=60
-          TODAY=$(date +%s)
+          gh auth login --with-token <<< "$GH_TOKEN"
 
-          echo "Fetching branches from $REPO..."
-          BRANCHES=$(gh api repos/$REPO/branches --jq '.[] | {name: .name, date: .commit.commit.author.date, user: .commit.commit.author.email}')
+      - name: Identify stale branches & notify owners
+        env:
+          GH_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
+        run: |
+          DAYS_OLD=30
+          GRACE_PERIOD=7
+          NOTIFIED_BRANCHES=()
 
-          echo "$BRANCHES" | while IFS= read -r branch; do
-              NAME=$(echo "$branch" | jq -r '.name')
-              LAST_COMMIT_DATE=$(echo "$branch" | jq -r '.date')
-              EMAIL=$(echo "$branch" | jq -r '.user')
+          for BRANCH in $(gh repo list-branches --json name,lastCommit --jq '.[] | select(.name | IN("main","develop") | not) | select(.lastCommit.committedDate < (now - (60*60*24*'"$DAYS_OLD"'))) | .name'); do
+            PR_COUNT=$(gh pr list --state open --head "$BRANCH" --json id --jq 'length')
 
-              if [[ "$LAST_COMMIT_DATE" == "null" || "$EMAIL" == "null" ]]; then
-                  echo "Skipping branch $NAME due to missing data."
-                  continue
-              fi
+            if [[ $PR_COUNT -eq 0 ]]; then
+              OWNER_EMAIL=$(gh api repos/${{ github.repository }}/branches/$BRANCH | jq -r '.commit.author.email')
+              NOTIFIED_BRANCHES+=("$BRANCH")
 
-              # Convert commit date to timestamp
-              COMMIT_TIMESTAMP=$(date -d "$LAST_COMMIT_DATE" +%s)
-              AGE=$(( (TODAY - COMMIT_TIMESTAMP) / 86400 ))
-
-              if [[ $AGE -gt $DAYS_OLD ]]; then
-                  echo "Branch '$NAME' is $AGE days old. Sending notification to $EMAIL..."
-
-                  # Send email notification using 'mail'
-                  SUBJECT="Stale branch '$NAME' in $REPO"
-                  MESSAGE="Hi,\n\nThe branch '$NAME' in repository '$REPO' has been inactive for $AGE days.\nPlease review or delete it if no longer needed.\n\nThanks,\nGitHub Admin"
-                  
-                  echo -e "$MESSAGE" | mail -s "$SUBJECT" "$EMAIL"
-              fi
+              echo "Notifying owner of branch: $BRANCH ($OWNER_EMAIL)"
+              echo "$BRANCH,$OWNER_EMAIL" >> stale_branches.csv
+            fi
           done
+
+          if [[ ${#NOTIFIED_BRANCHES[@]} -gt 0 ]]; then
+            echo "Stale branches found, sending notifications..."
+          else
+            echo "No stale branches found, skipping notifications."
+          fi
