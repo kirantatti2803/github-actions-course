@@ -25,7 +25,7 @@ jobs:
       - name: Find Stale Branches and Notify Owners
         run: |
           REPO="${{ github.repository }}"
-          DAYS_OLD=60
+          DAYS_OLD=2
           TODAY=$(date +%s)
 
           echo "Fetching branches from $REPO..."
