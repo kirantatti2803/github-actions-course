@@ -24,44 +24,24 @@ jobs:
 
       - name: Find Stale Branches and Notify Owners
         run: |
-          REPO="${{ github.repository }}"
-          DAYS_OLD=2
-          TODAY=$(date +%s)
+          DAYS_OLD=30
+          GRACE_PERIOD=7
+          NOTIFIED_BRANCHES=()
 
-          echo "Fetching branches from $REPO..."
-          BRANCHES=$(gh api repos/$REPO/branches --jq '.[] | {name: .name, date: .commit.commit.author.date, user: .commit.commit.author.name}')
+          for BRANCH in $(gh repo list-branches --json name,lastCommit --jq '.[] | select(.name | IN("main","develop") | not) | select(.lastCommit.committedDate < (now - (60*60*24*'"$DAYS_OLD"'))) | .name'); do
+            PR_COUNT=$(gh pr list --state open --head "$BRANCH" --json id --jq 'length')
 
-          echo "$BRANCHES" | while IFS= read -r branch; do
-              NAME=$(echo "$branch" | jq -r '.name')
-              LAST_COMMIT_DATE=$(echo "$branch" | jq -r '.date')
-              AUTHOR=$(echo "$branch" | jq -r '.user')
+            if [[ $PR_COUNT -eq 0 ]]; then
+              OWNER_EMAIL=$(gh api repos/${{ github.repository }}/branches/$BRANCH | jq -r '.commit.author.email')
+              NOTIFIED_BRANCHES+=("$BRANCH")
 
-              if [[ "$LAST_COMMIT_DATE" == "null" || "$AUTHOR" == "null" ]]; then
-                  echo "Skipping branch $NAME due to missing data."
-                  continue
-              fi
-
-              # Convert commit date to timestamp
-              COMMIT_TIMESTAMP=$(date -d "$LAST_COMMIT_DATE" +%s)
-              AGE=$(( (TODAY - COMMIT_TIMESTAMP) / 86400 ))
-
-              if [[ $AGE -gt $DAYS_OLD ]]; then
-                  echo "Branch '$NAME' is $AGE days old. Looking up email for '$AUTHOR'..."
-
-                  # Fetch the GitHub user's email
-                  EMAIL=$(gh api users/$AUTHOR --jq '.email')
-
-                  if [[ "$EMAIL" == "null" || -z "$EMAIL" ]]; then
-                      echo "Could not retrieve email for $AUTHOR. Skipping email notification."
-                      continue
-                  fi
-
-                  echo "Sending notification to $EMAIL..."
-
-                  # Send email notification
-                  SUBJECT="Stale branch '$NAME' in $REPO"
-                  MESSAGE="Hi,\n\nThe branch '$NAME' in repository '$REPO' has been inactive for $AGE days.\nPlease review or delete it if no longer needed.\n\nThanks,\nGitHub Admin"
-                  
-                  echo -e "$MESSAGE" | mail -s "$SUBJECT" "$EMAIL"
-              fi
+              echo "Notifying owner of branch: $BRANCH ($OWNER_EMAIL)"
+              echo "$BRANCH,$OWNER_EMAIL" >> stale_branches.csv
+            fi
           done
+
+          if [[ ${#NOTIFIED_BRANCHES[@]} -gt 0 ]]; then
+            echo "Stale branches found, sending notifications..."
+          else
+            echo "No stale branches found, skipping notifications."
+          fi
