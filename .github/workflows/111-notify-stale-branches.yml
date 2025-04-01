@@ -45,3 +45,65 @@ jobs:
           else
             echo "No stale branches found, skipping notifications."
           fi
+      
+      - name: Find Stale Branches and Notify Owners
+        run: |
+          DAYS_OLD=2
+          REPO="kirantatti2803/github-actions-course"
+          GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          EMAIL_SENDER="your-email@example.com"
+          ADMIN_EMAIL="admin@example.com"  # Fallback email if user email is private
+
+          echo "Checking stale branches in $REPO..."
+
+          STALE_BRANCHES=()
+
+          # Get all branches except main and develop
+          BRANCHES=$(gh api repos/$REPO/branches --jq '.[] | select(.name | IN("main","develop") | not) | {name: .name, lastCommit: .commit.commit.author.date}')
+
+          echo "$BRANCHES" | while IFS= read -r branch; do
+              NAME=$(echo "$branch" | jq -r '.name')
+              LAST_COMMIT_DATE=$(echo "$branch" | jq -r '.lastCommit')
+
+              if [[ "$LAST_COMMIT_DATE" == "null" ]]; then
+                  echo "Skipping branch $NAME due to missing commit data."
+                  continue
+              fi
+
+              # Convert commit date to timestamp
+              COMMIT_TIMESTAMP=$(date -d "$LAST_COMMIT_DATE" +%s)
+              CURRENT_TIMESTAMP=$(date +%s)
+              AGE=$(( (CURRENT_TIMESTAMP - COMMIT_TIMESTAMP) / 86400 ))
+
+              if [[ $AGE -gt $DAYS_OLD ]]; then
+                  # Check if branch has open PRs
+                  PR_COUNT=$(gh pr list --repo "$REPO" --state open --head "$NAME" --json id --jq 'length')
+
+                  if [[ $PR_COUNT -eq 0 ]]; then
+                      echo "Branch '$NAME' is $AGE days old with no open PRs. Fetching email..."
+
+                      # Try fetching the email from the last commit
+                      EMAIL=$(gh api repos/$REPO/commits/$NAME --jq '.commit.author.email')
+
+                      if [[ "$EMAIL" == "null" || -z "$EMAIL" ]]; then
+                          echo "Email is private. Sending notification to admin."
+                          EMAIL="$ADMIN_EMAIL"
+                      fi
+
+                echo "Notifying $EMAIL about stale branch $NAME."
+
+                SUBJECT="⚠️ Stale Branch: '$NAME' in $REPO"
+                MESSAGE="Hi,\n\nThe branch '$NAME' in repository '$REPO' has been inactive for $AGE days.\nPlease review or delete it if no longer needed.\n\nThanks,\nGitHub Admin"
+
+                echo -e "$MESSAGE" | mail -s "$SUBJECT" "$EMAIL"
+
+                STALE_BRANCHES+=("$NAME")
+                  fi
+            fi
+          done
+
+          if [[ ${#STALE_BRANCHES[@]} -gt 0 ]]; then
+              echo "Notifications sent for stale branches."
+          else
+              echo "No stale branches found."
+          fi
