@@ -24,6 +24,8 @@ jobs:
           EMAIL_SENDER: "your-email@example.com"
         run: |
           gh auth login --with-token <<< "$GH_TOKEN"
+          echo (gh repo list branches)
+          echo ("thanks for cli")
 
       - name: Identify stale branches & notify owners
         env:
