@@ -8,18 +8,19 @@ on:
 jobs:
   notify-branch-owners:
     runs-on: ubuntu-latest
-
+    GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install GitHub CLI
         run: |
-          sudo apt update && sudo apt install -y gh
+          sudo apt-get update
+          sudo apt-get install -y jq mailutils
 
-      - name: Authenticate GitHub CLI
-        env:
-          GH_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
+      - name: Find Stale Branches and Notify Owners
+        GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
+        EMAIL_SENDER: "your-email@example.com"
         run: |
           gh auth login --with-token <<< "$GH_TOKEN"
 
