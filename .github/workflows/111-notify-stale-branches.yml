@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
       EMAIL_SENDER: "your-email@example.com"
     
     steps:
