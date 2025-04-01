@@ -24,7 +24,7 @@ jobs:
 
       - name: Find Stale Branches and Notify Owners
         run: |
-          DAYS_OLD=30
+          DAYS_OLD=2
           GRACE_PERIOD=7
           NOTIFIED_BRANCHES=()
 
