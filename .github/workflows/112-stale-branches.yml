@@ -26,8 +26,8 @@ jobs:
             #!/bin/bash
 
             REPO="${{ github.repository }}"
-            STALE_DAYS=60
-            GRACE_PERIOD=7
+            STALE_DAYS=1
+            GRACE_PERIOD=1
             TODAY=$(date +%s)
 
             echo "Fetching branches from $REPO..."
