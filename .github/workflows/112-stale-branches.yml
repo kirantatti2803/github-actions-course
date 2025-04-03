@@ -23,69 +23,60 @@ jobs:
           EMAIL_SENDER: "no-reply-github-bot@gmail.com"
           EMAIL_PASSWORD: ${{ vars.EMAIL_PASSWORD }}
         run: |
-          #!/bin/bash
+            #!/bin/bash
 
-          REPO="${{ github.repository }}"  # Auto-detect repo
-          STALE_DAYS=60
-          GRACE_PERIOD=7
-          TODAY=$(date +%s)
+            REPO="kirantatti2803/github-actions-course"
+            STALE_DAYS=60
+            GRACE_PERIOD=7
+            TODAY=$(date +%s)
 
-          echo "Fetching branches from $REPO..."
-          BRANCHES=$(gh api repos/$REPO/branches --jq '.[] | {name: .name, date: .commit.commit.author.date, author: .commit.commit.author.name}')
+            echo "Fetching branches from $REPO..."
+            BRANCHES=$(gh api repos/$REPO/branches --jq '.[] | {name: .name, date: .commit.commit.author.date, author: .commit.commit.author.name}')
 
-          echo "$BRANCHES" | while IFS= read -r branch; do
-              NAME=$(echo "$branch" | jq -r '.name')
-              LAST_COMMIT_DATE=$(echo "$branch" | jq -r '.date')
-              AUTHOR=$(echo "$branch" | jq -r '.author')
+            echo "$BRANCHES" | while IFS= read -r branch; do
+                NAME=$(echo "$branch" | jq -r '.name')
+                LAST_COMMIT_DATE=$(echo "$branch" | jq -r '.date')
+                AUTHOR=$(echo "$branch" | jq -r '.author')
 
-              if [[ "$NAME" == "main" || "$NAME" == "develop" ]]; then
-                  echo "Skipping protected branch: $NAME"
-                  continue
-              fi
+                # Skip protected branches
+                if [[ "$NAME" == "main" || "$NAME" == "develop" ]]; then
+                    echo "Skipping protected branch: $NAME"
+                    continue
+                fi
 
-              COMMIT_TIMESTAMP=$(date -d "$LAST_COMMIT_DATE" +%s)
-              AGE=$(( (TODAY - COMMIT_TIMESTAMP) / 86400 ))
+                # Check if commit date is null
+                if [[ "$LAST_COMMIT_DATE" == "null" || -z "$LAST_COMMIT_DATE" ]]; then
+                    echo "⚠️ Skipping branch '$NAME' due to missing commit date."
+                    continue
+                fi
 
-              if [[ $AGE -gt $STALE_DAYS ]]; then
-                  echo "Branch '$NAME' is $AGE days old. Looking up email for '$AUTHOR'..."
-                  EMAIL=$(gh api users/$AUTHOR --jq '.email')
+                # Convert commit date to timestamp
+                COMMIT_TIMESTAMP=$(date -d "$LAST_COMMIT_DATE" +%s 2>/dev/null)
+                if [[ -z "$COMMIT_TIMESTAMP" ]]; then
+                    echo "⚠️ Invalid date format for branch '$NAME'. Skipping..."
+                    continue
+                fi
 
-                  if [[ -z "$EMAIL" || "$EMAIL" == "null" ]]; then
-                      echo "⚠️ No valid email found for $AUTHOR. Skipping email notification."
-                      continue
-                  fi
+                AGE=$(( (TODAY - COMMIT_TIMESTAMP) / 86400 ))
 
-                  echo "Notifying $EMAIL about stale branch '$NAME'..."
-                  SUBJECT="⚠️ Stale Branch Warning: '$NAME' in $REPO"
-                  MESSAGE="Hi $AUTHOR,\n\nThe branch '$NAME' in repository '$REPO' has been inactive for $AGE days.\nIf no activity occurs within the next $GRACE_PERIOD days, the branch will be deleted.\n\nPlease update or delete the branch if it's no longer needed.\n\nThanks,\nGitHub Admin"
+                if [[ $AGE -gt $STALE_DAYS ]]; then
+                    echo "Branch '$NAME' is $AGE days old. Looking up email for '$AUTHOR'..."
+                    EMAIL=$(gh api users/$AUTHOR --jq '.email')
 
-                  curl --url "smtp://$SMTP_SERVER:$SMTP_PORT" --ssl-reqd \
-                      --mail-from "$EMAIL_SENDER" --mail-rcpt "$EMAIL" \
-                      --user "$EMAIL_SENDER:$EMAIL_PASSWORD" \
-                      -T <(echo -e "From: GitHub Admin <$EMAIL_SENDER>\nTo: $EMAIL\nSubject: $SUBJECT\n\n$MESSAGE")
+                    if [[ -z "$EMAIL" || "$EMAIL" == "null" ]]; then
+                        echo "⚠️ No valid email found for $AUTHOR. Skipping email notification."
+                        continue
+                    fi
 
-                  echo "$NAME,$EMAIL,$((TODAY + (GRACE_PERIOD * 86400)))" >> stale_branches.csv
-              fi
-          done
+                    echo "Notifying $EMAIL about stale branch '$NAME'..."
+                    SUBJECT="⚠️ Stale Branch Warning: '$NAME' in $REPO"
+                    MESSAGE="Hi $AUTHOR,\n\nThe branch '$NAME' in repository '$REPO' has been inactive for $AGE days.\nIf no activity occurs within the next $GRACE_PERIOD days, the branch will be deleted.\n\nPlease update or delete the branch if it's no longer needed.\n\nThanks,\nGitHub Admin"
 
-      - name: Delete Expired Stale Branches
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          #!/bin/bash
+                    curl --url "smtp://$SMTP_SERVER:$SMTP_PORT" --ssl-reqd \
+                        --mail-from "$EMAIL_SENDER" --mail-rcpt "$EMAIL" \
+                        --user "$EMAIL_SENDER:$EMAIL_PASSWORD" \
+                        -T <(echo -e "From: GitHub Admin <$EMAIL_SENDER>\nTo: $EMAIL\nSubject: $SUBJECT\n\n$MESSAGE")
 
-          REPO="${{ github.repository }}"
-          TODAY=$(date +%s)
-
-          if [[ -f stale_branches.csv ]]; then
-              echo "Checking for branches past the grace period..."
-              while IFS=, read -r BRANCH_NAME OWNER_EMAIL DELETE_DATE; do
-                  if [[ $TODAY -gt $DELETE_DATE ]]; then
-                      echo "Deleting stale branch: $BRANCH_NAME"
-                      gh api --method DELETE repos/$REPO/git/refs/heads/$BRANCH_NAME
-                      sed -i "/$BRANCH_NAME/d" stale_branches.csv  # Remove from tracking
-                  fi
-              done < stale_branches.csv
-          fi
-
-          echo "✅ Stale branch cleanup complete."
+                    echo "$NAME,$EMAIL,$((TODAY + (GRACE_PERIOD * 86400)))" >> stale_branches.csv
+                fi
+            done
