@@ -25,7 +25,7 @@ jobs:
         run: |
             #!/bin/bash
 
-            REPO="kirantatti2803/github-actions-course"
+            REPO="${{ github.repository }}"
             STALE_DAYS=60
             GRACE_PERIOD=7
             TODAY=$(date +%s)
