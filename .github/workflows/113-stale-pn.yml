@@ -1,0 +1,32 @@
+name: Stale Branch Cleanup
+
+on:
+  schedule:
+    - cron: '0 0 1 * *' # Monthly, on the 1st at 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    env:
+      REPO: your-username/your-repo
+      STALE_DAYS: 90
+      GRACE_PERIOD: 7
+      SMTP_SERVER: smtp.gmail.com
+      SMTP_PORT: 587
+      EMAIL_SENDER: kirantatti@gmail.com
+      EMAIL_PASSWORD: ${{ vars.EMAIL_PASSWORD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install jq curl mailutils
+
+      - name: Authenticate with GitHub CLI
+        run: echo "${{ vars.GIT_CLI_TOKEN }}" | gh auth login --with-token
+
+      - name: Run stale branch cleanup script
+        run: bash .github/scripts/stale-branch-cleanup.sh
