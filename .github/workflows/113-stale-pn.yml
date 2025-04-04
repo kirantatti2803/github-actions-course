@@ -25,8 +25,5 @@ jobs:
           sudo apt-get update
           sudo apt-get install jq curl mailutils
 
-      - name: Authenticate with GitHub CLI
-        run: echo "${{ vars.GIT_CLI_TOKEN }}" | gh auth login --with-token
-
       - name: Run stale branch cleanup script
         run: bash .github/scripts/stale-branch-cleanup.sh
