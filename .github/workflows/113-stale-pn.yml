@@ -9,7 +9,7 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     env:
-      REPO: your-username/your-repo
+      REPO: "${{ github.repository }}"
       STALE_DAYS: 90
       GRACE_PERIOD: 7
       SMTP_SERVER: smtp.gmail.com
