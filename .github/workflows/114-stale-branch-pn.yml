@@ -31,7 +31,8 @@ jobs:
           PROTECTED_BRANCHES=("main" "development" "test")
           STALE_DAYS=1
           GRACE_PERIOD_DAYS=7
-      
+          echo "$GIT_CLI_TOKEN"
+          echo $GIT_CLI_TOKEN
           # Check GITHUB_TOKEN
           if [ -z "$GIT_CLI_TOKEN" ]; then
             echo "❌ GIT_CLI_TOKEN not set!"
@@ -86,6 +87,11 @@ jobs:
           done
       
           echo "✅ Stale branch scan complete."
+          echo "📄 Report:"
+          cat "$REPORT_FILE"
+        env:
+         GIT_CLI_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
+
       
 #     - name: Step 2 - Send Email via AWS SES
 #       if: success() && hashFiles('_github_workflow/stale_branch_report.txt') != ''
