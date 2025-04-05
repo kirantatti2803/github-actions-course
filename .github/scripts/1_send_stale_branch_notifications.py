@@ -13,6 +13,12 @@ STALE_DAYS = 1
 GRACE_PERIOD_DAYS = 7
 
 GITHUB_TOKEN = os.getenv("GIT_CLI_TOKEN")
+
+print(GITHUB_TOKEN)
+
+if not GITHUB_TOKEN:
+    raise ValueError("❌ GIT_CLI_TOKEN not found in environment variables!")
+    
 headers = {
     "Authorization": f"token {GITHUB_TOKEN}",
     "Accept": "application/vnd.github+json"
