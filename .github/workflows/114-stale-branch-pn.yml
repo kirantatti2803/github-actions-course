@@ -24,7 +24,7 @@ jobs:
         run: pip install python-dotenv requests
 
       - name: Step 1 - Identify stale branches
-        run: python pypython/notify_stale_branch/1_send_stale_branch_notifications.py
+        run: python .github/scripts/1_send_stale_branch_notifications.py
 
 #     - name: Step 2 - Send Email via AWS SES
 #       if: success() && hashFiles('_github_workflow/stale_branch_report.txt') != ''
@@ -41,7 +41,7 @@ jobs:
 #         AWS_REGION: 'us-east-1'
 
       - name: Step 3 - Delete branches past grace period
-        run: python pypython/notify_stale_branch/2_delete_stale_branches.py
+        run: python .github/scripts/2_delete_stale_branches.py
 
 
 
