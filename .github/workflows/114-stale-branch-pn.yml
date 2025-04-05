@@ -25,6 +25,8 @@ jobs:
 
       - name: Step 1 - Identify stale branches
         run: python .github/scripts/1_send_stale_branch_notifications.py
+        env:
+            GIT_CLI_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
 
 #     - name: Step 2 - Send Email via AWS SES
 #       if: success() && hashFiles('_github_workflow/stale_branch_report.txt') != ''
