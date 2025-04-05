@@ -1,0 +1,49 @@
+name: Stale Branch Notifier
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * 1'  # Every Monday at 1AM UTC
+
+jobs:
+  stale-branch-check:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: pip install python-dotenv requests
+
+      - name: Step 1 - Identify stale branches
+        run: python pypython/notify_stale_branch/1_send_stale_branch_notifications.py
+
+      - name: Step 2 - Send Email via AWS SES
+        if: success() && hashFiles('_github_workflow/stale_branch_report.txt') != ''
+        uses: xxxxxxxxx
+        with:
+          subject: "Stale Branches Report for GitHub Repository"
+          body: "Attached is the list of stale branches identified for cleanup."
+          recipient-emails: 'test'
+          sender-email: ''
+          email-attachments: '${{ runner.workspace }}/_github_workflow/stale_branch_report.txt'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SES_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SES_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-east-1'
+
+      - name: Step 3 - Delete branches past grace period
+        run: python pypython/notify_stale_branch/2_delete_stale_branches.py
+
+
+
+
+
