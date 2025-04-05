@@ -117,6 +117,7 @@ jobs:
 
       - name: Step 3 - Delete branches past grace period
         run: |
+            #!/usr/bin/env bash
             set -e
 
             REPO="kirantatti2803/github-actions-course"
@@ -146,4 +147,18 @@ jobs:
             while IFS=',' read -r NAME EMAIL DELETE_DATE; do
                 if [ "$DELETE_DATE" != "" ] && [ "$(date -d "$DELETE_DATE" +%s)" -le "$(date -d "$TODAY" +%s)" ]; then
                 echo "🧹 Deleting branch: $NAME"
-                DELETE_URL="https://api_
+                DELETE_URL="https://api.github.com/repos/${REPO}/git/refs/heads/${NAME}"
+                RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "${HEADERS[@]}" "$DELETE_URL")
+                if [ "$RESP_CODE" = "204" ]; then
+                    echo "🗑️ Deleted branch: $NAME"
+                else
+                    echo "⚠️ Failed to delete $NAME (HTTP $RESP_CODE)"
+                fi
+                else
+                echo "$NAME,$EMAIL,$DELETE_DATE" >> "$TMP_FILE"
+                fi
+            done < "$CSV_FILE"
+
+            mv "$TMP_FILE" "$CSV_FILE"
+
+            echo "✅ Branch cleanup completed."
