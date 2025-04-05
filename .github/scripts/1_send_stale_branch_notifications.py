@@ -9,7 +9,7 @@ load_dotenv()
 
 REPO = "kirantatti2803/github-actions-course"
 PROTECTED_BRANCHES = ["main", "development", "test"]
-STALE_DAYS = 90
+STALE_DAYS = 1
 GRACE_PERIOD_DAYS = 7
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
