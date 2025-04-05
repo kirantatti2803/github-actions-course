@@ -123,6 +123,8 @@ jobs:
             REPO="kirantatti2803/github-actions-course"
             CSV_FILE="stale_branches.csv"
 
+            cat "$CSV_FILE
+
             if [ -z "$GIT_CLI_TOKEN" ]; then
                 echo "❌ GIT_CLI_TOKEN not set!"
                 exit 1
@@ -144,6 +146,9 @@ jobs:
             TMP_FILE="temp_stale_branches.csv"
             : > "$TMP_FILE"
 
+            echo "TMP_FILE -Temp file to keep undeletable branches" 
+            cat "$TMP_FILE
+
             while IFS=',' read -r NAME EMAIL DELETE_DATE; do
                 if [ "$DELETE_DATE" != "" ] && [ "$(date -d "$DELETE_DATE" +%s)" -le "$(date -d "$TODAY" +%s)" ]; then
                 echo "🧹 Deleting branch: $NAME"
@@ -160,5 +165,8 @@ jobs:
             done < "$CSV_FILE"
 
             mv "$TMP_FILE" "$CSV_FILE"
+
+            echo "TMP_FILE -Temp file to keep undeletable branches" 
+            cat "$TMP_FILE
 
             echo "✅ Branch cleanup completed."
