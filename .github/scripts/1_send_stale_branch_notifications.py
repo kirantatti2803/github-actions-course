@@ -12,7 +12,7 @@ PROTECTED_BRANCHES = ["main", "development", "test"]
 STALE_DAYS = 1
 GRACE_PERIOD_DAYS = 7
 
-GITHUB_TOKEN = ${{ vars.GIT_CLI_TOKEN }}
+GITHUB_TOKEN = os.getenv("GIT_CLI_TOKEN")
 headers = {
     "Authorization": f"token {GITHUB_TOKEN}",
     "Accept": "application/vnd.github+json"
