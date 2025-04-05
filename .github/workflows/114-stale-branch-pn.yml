@@ -166,7 +166,7 @@ jobs:
       - name: Upload Delete stage branch report
         uses: actions/upload-artifact@v4
         with:
-            name: stale-branch-report
+            name: delete-branch-report
             path: |
                  _github_workflow/stale_branch_report.txt
                  stale_branches.csv
