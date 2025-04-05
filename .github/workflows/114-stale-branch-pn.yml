@@ -92,6 +92,14 @@ jobs:
         env:
          GIT_CLI_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
 
+      - name: Upload stale branch report
+        uses: actions/upload-artifact@v4
+        with:
+           name: stale-branch-report
+           path: |
+             _github_workflow/stale_branch_report.txt
+             stale_branches.csv
+
       
 #     - name: Step 2 - Send Email via AWS SES
 #       if: success() && hashFiles('_github_workflow/stale_branch_report.txt') != ''
