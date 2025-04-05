@@ -24,10 +24,69 @@ jobs:
         run: pip install python-dotenv requests
 
       - name: Step 1 - Identify stale branches
-        run: python .github/scripts/1_send_stale_branch_notifications.py
-        env:
-            GIT_CLI_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
-
+        run: |
+          set -e
+      
+          REPO="kirantatti2803/github-actions-course"
+          PROTECTED_BRANCHES=("main" "development" "test")
+          STALE_DAYS=1
+          GRACE_PERIOD_DAYS=7
+      
+          # Check GITHUB_TOKEN
+          if [ -z "$GIT_CLI_TOKEN" ]; then
+            echo "❌ GIT_CLI_TOKEN not set!"
+            exit 1
+          fi
+      
+          HEADERS=(
+            -H "Authorization: token $GIT_CLI_TOKEN"
+            -H "Accept: application/vnd.github+json"
+          )
+      
+          TODAY=$(date -u +"%s")
+          REPORT_DIR="_github_workflow"
+          REPORT_FILE="$REPORT_DIR/stale_branch_report.txt"
+          CSV_FILE="stale_branches.csv"
+      
+          mkdir -p "$REPORT_DIR"
+          echo "Branch Name,Email,Author,Age,Deletion Date" > "$REPORT_FILE"
+          : > "$CSV_FILE"
+      
+          echo "🔍 Fetching branches for $REPO..."
+          BRANCHES=$(curl -s "${HEADERS[@]}" "https://api.github.com/repos/${REPO}/branches")
+      
+          echo "$BRANCHES" | jq -c '.[]' | while read -r branch; do
+            NAME=$(echo "$branch" | jq -r '.name')
+      
+            # Skip protected branches
+            if [[ " ${PROTECTED_BRANCHES[*]} " =~ " ${NAME} " ]]; then
+              continue
+            fi
+      
+            SHA=$(echo "$branch" | jq -r '.commit.sha')
+            COMMIT_DATA=$(curl -s "${HEADERS[@]}" "https://api.github.com/repos/${REPO}/commits/${SHA}")
+      
+            AUTHOR=$(echo "$COMMIT_DATA" | jq -r '.commit.author.name')
+            EMAIL=$(echo "$COMMIT_DATA" | jq -r '.commit.author.email')
+            DATE_STR=$(echo "$COMMIT_DATA" | jq -r '.commit.author.date')
+      
+            if [ -z "$EMAIL" ] || [ -z "$DATE_STR" ]; then
+              continue
+            fi
+      
+            COMMIT_DATE=$(date -d "$DATE_STR" +"%s")
+            AGE_DAYS=$(( (TODAY - COMMIT_DATE) / 86400 ))
+      
+            if [ "$AGE_DAYS" -gt "$STALE_DAYS" ]; then
+              DELETE_DATE=$(date -d "+${GRACE_PERIOD_DAYS} days" +"%Y-%m-%d")
+              LINE="$NAME,$EMAIL,$AUTHOR,$AGE_DAYS days old, Delete on $DELETE_DATE"
+              echo "$LINE" >> "$REPORT_FILE"
+              echo "$NAME,$EMAIL,$DELETE_DATE" >> "$CSV_FILE"
+            fi
+          done
+      
+          echo "✅ Stale branch scan complete."
+      
 #     - name: Step 2 - Send Email via AWS SES
 #       if: success() && hashFiles('_github_workflow/stale_branch_report.txt') != ''
 #       uses: xxxxxxxxx
