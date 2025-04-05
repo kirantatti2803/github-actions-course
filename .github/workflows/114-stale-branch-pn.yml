@@ -116,9 +116,34 @@ jobs:
 #         AWS_REGION: 'us-east-1'
 
       - name: Step 3 - Delete branches past grace period
-        run: python .github/scripts/2_delete_stale_branches.py
+        run: |
+            set -e
 
+            REPO="kirantatti2803/github-actions-course"
+            CSV_FILE="stale_branches.csv"
 
+            if [ -z "$GIT_CLI_TOKEN" ]; then
+                echo "❌ GIT_CLI_TOKEN not set!"
+                exit 1
+            fi
 
+            HEADERS=(
+                -H "Authorization: token $GIT_CLI_TOKEN"
+                -H "Accept: application/vnd.github+json"
+            )
 
+            TODAY=$(date -u +"%Y-%m-%d")
 
+            if [ ! -f "$CSV_FILE" ]; then
+                echo "📄 No $CSV_FILE found."
+                exit 0
+            fi
+
+            # Temp file to keep undeletable branches
+            TMP_FILE="temp_stale_branches.csv"
+            : > "$TMP_FILE"
+
+            while IFS=',' read -r NAME EMAIL DELETE_DATE; do
+                if [ "$DELETE_DATE" != "" ] && [ "$(date -d "$DELETE_DATE" +%s)" -le "$(date -d "$TODAY" +%s)" ]; then
+                echo "🧹 Deleting branch: $NAME"
+                DELETE_URL="https://api_
