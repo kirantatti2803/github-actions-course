@@ -37,7 +37,7 @@ jobs:
           )
       
           TODAY=$(date -u +"%s")
-          REPORT_DIR="${{ github.repository }}/_github_workflow"
+          REPORT_DIR="${{ github.repository }}/${{ github.repository }}/_github_workflow"
           REPORT_FILE="$REPORT_DIR/stale_branch_report.txt"
           CSV_FILE="stale_branches.csv"
       
@@ -89,8 +89,8 @@ jobs:
         with:
            name: stale-branch-report
            path: |
-             _github_workflow/stale_branch_report.txt
-             stale_branches.csv
+             ${{ github.repository }}/_github_workflow/stale_branch_report.txt
+             ${{ github.repository }}/stale_branches.csv
 
       
 #     - name: Step 2 - Send Email via AWS SES
