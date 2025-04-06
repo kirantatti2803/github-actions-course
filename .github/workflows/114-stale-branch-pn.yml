@@ -18,7 +18,7 @@ jobs:
       - name: Restore previous stale branch CSV
         uses: actions/download-artifact@v4
         with:
-          name: stale-branches
+          name: stale-branch-report
           path: .
 
       - name: Step 1 - Identify stale branches (Preserve delete dates)
