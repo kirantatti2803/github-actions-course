@@ -89,8 +89,8 @@ jobs:
         with:
            name: stale-branch-report
            path: |
-             ${{ github.repository }}/_github_workflow/stale_branch_report.txt
-             ${{ github.repository }}/stale_branches.csv
+             _github_workflow/stale_branch_report.txt
+             stale_branches.csv
 
       
 #     - name: Step 2 - Send Email via AWS SES
@@ -109,7 +109,7 @@ jobs:
 
       - name: Step 3 - Delete branches past grace period
         run: |
-            CSV_FILE="${{ github.repository }}/stale_branches.csv"
+            CSV_FILE="stale_branches.csv"
             DELETED_CSV_FILE="deleted_branches.csv"
             DEL_REPORT_PATH="${{ github.repository }}/$DELETED_CSV_FILE"
 
@@ -152,13 +152,13 @@ jobs:
                     RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "${HEADERS[@]}" "$DELETE_URL")
                     if [ "$RESP_CODE" = "204" ]; then
                         echo "🗑 Deleted branch: $NAME"
-                        echo "$NAME,$EMAIL,$DELETE_DATE" >> "$DEL_REPORT_PATH"
+                        echo "$NAME,$EMAIL,$DELETE_DATE" >> "$DELETED_CSV_FILE"
                     else
                         echo "⚠ Failed to delete $NAME (HTTP $RESP_CODE)"
-                        echo "$NAME,$EMAIL,$DELETE_DATE" >> "$DEL_REPORT_PATH/$TMP_FILE"
+                        echo "$NAME,$EMAIL,$DELETE_DATE" >> "$TMP_FILE"
                     fi
                 else
-                    echo "$NAME,$EMAIL,$DELETE_DATE" >> "$DEL_REPORT_PATH/$TMP_FILE"
+                    echo "$NAME,$EMAIL,$DELETE_DATE" >> "$TMP_FILE"
                 fi
             done < "$CSV_FILE"
 
@@ -176,7 +176,7 @@ jobs:
         with:
             name: delete-branch-report
             path: |
-                 ${{ github.repository }}/_github_workflow/stale_branch_report.txt
-                 stale_branches.csv
+                 _github_workflow/stale_branch_report.txt
+                 $DELETED_CSV_FILE
                
     
