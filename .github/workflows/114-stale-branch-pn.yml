@@ -169,14 +169,13 @@ jobs:
 
             echo "✅ Branch cleanup completed."
             echo "📝 Deleted branches log:"
-            cat "$DEL_REPORT_PATH"
+            cat "$DELETED_CSV_FILE"
 
       - name: Upload Delete stage branch report
         uses: actions/upload-artifact@v4
         with:
             name: delete-branch-report
             path: |
-                 _github_workflow/stale_branch_report.txt
                  $DELETED_CSV_FILE
                
     
