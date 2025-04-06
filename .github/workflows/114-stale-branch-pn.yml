@@ -137,10 +137,10 @@ jobs:
 
             # Temp file to keep undeletable branches
             TMP_FILE="temp_stale_branches.csv"
-            : > "$DEL_REPORT_PATH/$TMP_FILE"
+            : > "$TMP_FILE"
 
             # Initialize deleted branches log
-            echo "Branch Name,Email,Deletion Date" > "$DEL_REPORT_PATH"
+            echo "Branch Name,Email,Deletion Date" > "$DELETED_CSV_FILE"
 
             echo "📁 TMP_FILE - Temp file to keep undeletable branches:"
             cat "$TMP_FILE"
