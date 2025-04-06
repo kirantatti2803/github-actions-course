@@ -20,7 +20,8 @@ jobs:
         continue-on-error: true
         with:
           name: stale-branch-report
-          path: .
+          path: |
+             stale_branches.csv
 
       - name: Step 1 - Identify stale branches (Preserve delete dates)
         run: |
