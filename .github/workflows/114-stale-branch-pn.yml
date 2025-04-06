@@ -22,7 +22,7 @@ jobs:
           REPO="${{ github.repository }}"
           PROTECTED_BRANCHES=("main" "development" "test")
           STALE_DAYS=1
-          GRACE_PERIOD_DAYS=1
+          GRACE_PERIOD_DAYS=0
           echo "$GIT_CLI_TOKEN"
           echo $GIT_CLI_TOKEN
           # Check GITHUB_TOKEN
