@@ -106,7 +106,7 @@ jobs:
             echo "✅ Stale branch scan complete."
             echo "📄 Report:"
             cat "$REPORT_FILE"
-          env:
+        env:
             GIT_CLI_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
 
       - name: Step 1 - Identify stale branches
