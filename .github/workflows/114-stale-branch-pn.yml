@@ -99,7 +99,7 @@ jobs:
         with:
              server_address: smtp.gmail.com
              server_port: 587
-             username: ${{ secrets.GMAIL_USERNAME }}
+             username: kirantatti2803@gmail.com
              password: ${{ secrets.GMAIL_APP_PASSWORD }}
              subject: "Stale Branches Report for GitHub Repository"
              body: |
