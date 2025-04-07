@@ -1,0 +1,100 @@
+name: Stale Branch Notifier
+
+on:
+    workflow_dispatch:
+      inputs:
+        source_run_id:
+          description: 'Run ID of the stale branch report workflow'
+          required: true
+
+jobs:
+ delete-branch:
+    runs-on: ubuntu-latest
+    env:
+      GIT_CLI_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download stale branch report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: stale-branch-report
+          path: ./downloaded-artifacts
+          repository: "${{ github.repository }}"
+          run-id: ${{ inputs.source_run_id }}
+        continue-on-error: true
+
+      - name: Step 3 - Delete branches past grace period
+        run: |
+            CSV_FILE="stale_branches.csv"
+            DELETED_CSV_FILE="deleted_branches.csv"
+            DEL_REPORT_PATH="${{ github.repository }}/$DELETED_CSV_FILE"
+
+            echo "📄 Contents of $CSV_FILE:"
+            cat "$CSV_FILE"
+
+            if [ -z "$GIT_CLI_TOKEN" ]; then
+                echo "❌ GIT_CLI_TOKEN not set!"
+                exit 1
+            fi
+            echo "🔎 Verifying permissions for token..."
+            curl -s "${HEADERS[@]}" "https://api.github.com/user" | jq
+
+            HEADERS=(
+                -H "Authorization: token $GIT_CLI_TOKEN"
+                -H "Accept: application/vnd.github+json"
+            )
+
+            TODAY=$(date -u +"%Y-%m-%d")
+
+            if [ ! -f "$CSV_FILE" ]; then
+                echo "📄 No $CSV_FILE found."
+                exit 0
+            fi
+
+            # Temp file to keep undeletable branches
+            TMP_FILE="temp_stale_branches.csv"
+            : > "$TMP_FILE"
+
+            # Initialize deleted branches log
+            echo "Branch Name,Email,Deletion Date" > "$DELETED_CSV_FILE"
+
+            echo "📁 TMP_FILE - Temp file to keep undeletable branches:"
+            cat "$TMP_FILE"
+
+            while IFS=',' read -r NAME EMAIL DELETE_DATE; do
+                if [ "$DELETE_DATE" != "" ] && [ "$(date -d "$DELETE_DATE" +%s)" -le "$(date -d "$TODAY" +%s)" ]; then
+                    echo "🧹 Deleting branch: $NAME"
+                    DELETE_URL="https://api.github.com/repos/${REPO}/git/refs/heads/${NAME}"
+                    RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "${HEADERS[@]}" "$DELETE_URL")
+                    if [ "$RESP_CODE" = "204" ]; then
+                        echo "🗑 Deleted branch: $NAME"
+                        echo "$NAME,$EMAIL,$DELETE_DATE" >> "$DELETED_CSV_FILE"
+                    else
+                        echo "⚠ Failed to delete $NAME (HTTP $RESP_CODE)"
+                        echo "$NAME,$EMAIL,$DELETE_DATE" >> "$TMP_FILE"
+                    fi
+                else
+                    echo "$NAME,$EMAIL,$DELETE_DATE" >> "$TMP_FILE"
+                fi
+            done < "$CSV_FILE"
+
+            mv "$TMP_FILE" "$CSV_FILE"
+
+            echo "📄 FINAL CSV (Remaining branches):"
+            cat "$CSV_FILE"
+
+            echo "✅ Branch cleanup completed."
+            echo "📝 Deleted branches log:"
+            cat "$DELETED_CSV_FILE"
+
+      - name: Upload Delete stage branch report
+        uses: actions/upload-artifact@v4
+        with:
+            name: delete-branch-report
+            path: |
+                 $DELETED_CSV_FILE
+               
+    

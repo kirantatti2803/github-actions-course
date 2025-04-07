@@ -15,100 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Restore previous stale branch CSV
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: stale-branch-report
-          path: ./downloaded-report
-
-      - name: Step 1 - Identify stale branches (Preserve delete dates)
-        run: |
-            set -e
-        
-            REPO="${{ github.repository }}"
-            PROTECTED_BRANCHES=("main" "development" "test")
-            STALE_DAYS=1
-            GRACE_PERIOD_DAYS=7
-        
-            # Check GITHUB_TOKEN
-            if [ -z "$GIT_CLI_TOKEN" ]; then
-              echo "❌ GIT_CLI_TOKEN not set!"
-              exit 1
-            fi
-        
-            HEADERS=(
-              -H "Authorization: token $GIT_CLI_TOKEN"
-              -H "Accept: application/vnd.github+json"
-            )
-        
-            TODAY=$(date -u +"%s")
-            REPORT_DIR="_github_workflow"
-            REPORT_FILE="$REPORT_DIR/stale_branch_report.txt"
-            CSV_FILE="stale_branches.csv"
-            TEMP_CSV="stale_branches_updated.csv"
-        
-            mkdir -p "$REPORT_DIR"
-            echo "Branch Name,Email,Author,Age,Deletion Date" > "$REPORT_FILE"
-            : > "$TEMP_CSV"
-        
-            # Load existing delete dates (if any)
-            declare -A existing_dates
-            if [ -f "$CSV_FILE" ]; then
-              echo "📄 Restoring existing stale branch data..."
-              while IFS=',' read -r NAME EMAIL DELETE_DATE; do
-                if [ "$NAME" != "" ] && [ "$DELETE_DATE" != "" ]; then
-                  existing_dates["$NAME"]="$DELETE_DATE"
-                fi
-              done < "$CSV_FILE"
-            fi
-        
-            echo "🔍 Fetching branches for $REPO..."
-            BRANCHES=$(curl -s "${HEADERS[@]}" "https://api.github.com/repos/${REPO}/branches")
-        
-            echo "$BRANCHES" | jq -c '.[]' | while read -r branch; do
-              NAME=$(echo "$branch" | jq -r '.name')
-        
-              # Skip protected branches
-              if [[ " ${PROTECTED_BRANCHES[*]} " =~ " ${NAME} " ]]; then
-                continue
-              fi
-        
-              SHA=$(echo "$branch" | jq -r '.commit.sha')
-              COMMIT_DATA=$(curl -s "${HEADERS[@]}" "https://api.github.com/repos/${REPO}/commits/${SHA}")
-        
-              AUTHOR=$(echo "$COMMIT_DATA" | jq -r '.commit.author.name')
-              EMAIL=$(echo "$COMMIT_DATA" | jq -r '.commit.author.email')
-              DATE_STR=$(echo "$COMMIT_DATA" | jq -r '.commit.author.date')
-        
-              if [ -z "$EMAIL" ] || [ -z "$DATE_STR" ]; then
-                continue
-              fi
-        
-              COMMIT_DATE=$(date -d "$DATE_STR" +"%s")
-              AGE_DAYS=$(( (TODAY - COMMIT_DATE) / 86400 ))
-        
-              if [ "$AGE_DAYS" -gt "$STALE_DAYS" ]; then
-                # Reuse previous DELETE_DATE if available
-                if [ -n "${existing_dates[$NAME]}" ]; then
-                  DELETE_DATE="${existing_dates[$NAME]}"
-                else
-                  DELETE_DATE=$(date -d "+${GRACE_PERIOD_DAYS} days" +"%Y-%m-%d")
-                fi
-        
-                LINE="$NAME,$EMAIL,$AUTHOR,$AGE_DAYS days old, Delete on $DELETE_DATE"
-                echo "$LINE" >> "$REPORT_FILE"
-                echo "$NAME,$EMAIL,$DELETE_DATE" >> "$TEMP_CSV"
-              fi
-            done
-        
-            mv "$TEMP_CSV" "$CSV_FILE"
-        
-            echo "✅ Stale branch scan complete."
-            echo "📄 Report:"
-            cat "$REPORT_FILE"
-        env:
-            GIT_CLI_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
 
       - name: Step 1 - Identify stale branches
         run: |
@@ -188,20 +94,25 @@ jobs:
              stale_branches.csv
            retention-days: 30
 
-      
-#     - name: Step 2 - Send Email via AWS SES
-#       if: success() && hashFiles('_github_workflow/stale_branch_report.txt') != ''
-#       uses: xxxxxxxxx
-#       with:
-#         subject: "Stale Branches Report for GitHub Repository"
-#         body: "Attached is the list of stale branches identified for cleanup."
-#         recipient-emails: 'test'
-#        sender-email: ''
-#         email-attachments: '${{ runner.workspace }}/_github_workflow/stale_branch_report.txt'
-#       env:
-#         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SES_ACCESS_KEY_ID }}
-#         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SES_SECRET_ACCESS_KEY }}
-#         AWS_REGION: 'us-east-1'
+      - name: Send Email using Gmail SMTP
+        uses: dawidd6/action-send-mail@v3
+        with:
+             server_address: smtp.gmail.com
+             server_port: 587
+             username: ${{ secrets.GMAIL_USERNAME }}
+             password: ${{ secrets.GMAIL_APP_PASSWORD }}
+             subject: "Stale Branches Report for GitHub Repository"
+             body: |
+               Hi Team,
+   
+               Please find attached the list of stale branches identified for cleanup.
+   
+               Regards,
+               DevSecOps Bot
+             to: ${{ secrets.GMAIL_USERNAME }}
+             cc: pnayak060331@gmail.com
+             from: "GitHub Bot <${{ secrets.GMAIL_USERNAME }}>"
+             attachments: _github_workflow/stale_branch_report.txt
 
       - name: Step 3 - Delete branches past grace period
         run: |
