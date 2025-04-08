@@ -9,7 +9,7 @@ jobs:
   identify-and-delete:
     runs-on: ubuntu-latest
     env:
-      GIT_CLI_TOKEN: ${{ secrets.GIT_CLI_TOKEN }}
+      GIT_CLI_TOKEN: ${{ vars.GIT_CLI_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
