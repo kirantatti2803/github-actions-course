@@ -20,7 +20,7 @@ jobs:
           set -e
 
           REPO="${{ github.repository }}"
-          PROTECTED_BRANCHES=("main" "master" "development")
+          PROTECTED_BRANCHES=("main" "master" "develop")
           STALE_DAYS=1
           TODAY=$(date -u +%s)
           HEADERS=(-H "Authorization: token $GIT_CLI_TOKEN" -H "Accept: application/vnd.github+json")
