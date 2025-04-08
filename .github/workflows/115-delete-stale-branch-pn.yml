@@ -21,7 +21,7 @@ jobs:
 
           REPO="${{ github.repository }}"
           PROTECTED_BRANCHES=("main" "master" "development")
-          STALE_DAYS=90
+          STALE_DAYS=1
           TODAY=$(date -u +%s)
           HEADERS=(-H "Authorization: token $GIT_CLI_TOKEN" -H "Accept: application/vnd.github+json")
 
